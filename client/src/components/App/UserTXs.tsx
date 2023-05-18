@@ -28,6 +28,7 @@ import { ethers } from 'ethers';
 
 export const UserTXs = () => {
   const [txs, setTXs] = useState([]);
+  const [isMemberOfDAO, setMemberOfDAO] = useState(false);
   const { daoAddress, setDaoAddress } = useDao();
 
   const { abi: DAOAbi, address: DAOAddress } = SimulatedDAOTeasury;
@@ -43,8 +44,18 @@ export const UserTXs = () => {
   const pullTXs = async () => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-        
+    
     let DAO = new ethers.Contract(DAOAddress as `0x${string}`, DAOAbi, signer);
+
+    let owners = await DAO.getOwners();
+
+    if (!owners.includes(await signer?.getAddress())) {
+      setMemberOfDAO(false);
+      setTXs([]);
+      return;
+    }
+
+    setMemberOfDAO(true);
 
     let totalTXCount = (await DAO.getTransactionCount()).toNumber();
 
@@ -65,6 +76,11 @@ export const UserTXs = () => {
 
   useEffect(() => {
     pullTXs();
+    const interval = setInterval(() => pullTXs(), 2000);
+
+    return () => {
+      clearInterval(interval);
+    }
   }, []);
 
   const acceptTX = async (tx: string) => {
@@ -131,7 +147,7 @@ export const UserTXs = () => {
     <>
       <Card align='center' overflowY="scroll" maxH="40vh" h="40vh">
         <CardHeader>
-          <Heading size='md'>⚙️ User Pending TXs</Heading>
+          <Heading size='md'>⚙️ User Pending TXs {!isMemberOfDAO ? "(Not a DAO member)" : null}</Heading>
         </CardHeader>
         <CardBody>
           <Flex flexDirection="column">

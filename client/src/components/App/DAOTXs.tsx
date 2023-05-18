@@ -56,6 +56,11 @@ export const DAOTXs = () => {
 
   useEffect(() => {
     pullTXs();
+    const interval = setInterval(() => pullTXs(), 2000);
+
+    return () => {
+      clearInterval(interval);
+    }
   }, []);
 
   const getTXCards = () => {
