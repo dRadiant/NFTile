@@ -155,7 +155,7 @@ export const Deposit = () => {
 
             <Select onChange={handleTokenSelectChange} placeholder="Select a Mock NFT">
               {myTokens.map((token, index) => (
-                <option index={index} value={token.toNumber()}>Mock NFT {token.toNumber()}</option>
+                <option value={token.toNumber()}>Mock NFT {token.toNumber()}</option>
               ))}
             </Select>
           </Stack>
